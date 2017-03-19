@@ -1,0 +1,71 @@
+﻿
+<div class="pmb-block">
+    <div class="pmbb-header">
+        <h2> Love us? Invite your friends! </h2>
+        <p>Once they sign up and complete a job, you and your friend will receive 25% off your next job order!</p>
+    </div>
+
+    <button type="button" ng-click="referral.showForm()" class="btn btn-primary">Click here to send invites!</button>
+
+    <br />
+
+    <form id="inviteFriendsForm" name="referralForm" ng-if="referral.toggleForm" ng-submit="referral.submitForm(referralForm.$valid)" novalidate>
+        <h4>Enter your friend's email here:</h4>
+        <ng-form name="referral.referralEmail" data-ng-repeat="email in referral.inputs track by $index">
+            <div class="form-group form-inline col-md-12" ng-class="{ 'has-error' : referralForm.email.$invalid && !referralForm.email.$pristine }">
+                <i class="zmdi zmdi-accounts-add zmdi-hc-fw"></i>
+                <label>Name:</label>
+                <input type="text" name="name" class="form-control" ng-model="referral.inputs[$index].name">
+                <i class="zmdi zmdi-email"></i>
+                <label>Email:</label>
+                <input type="email" name="email" class="form-control" ng-model="referral.inputs[$index].email ">
+                <p ng-show="referralForm.email.$invalid && !referralForm.email.$pristine" class="help-block">Enter a valid email.</p>
+                <button type="button" class="btn btn-success" ng-click="referral.addEmail()">Add another</button>
+                <button type="button" class="btn btn-danger" ng-hide="referral.removeLine" ng-click="referral.removeEmail($index)">Remove</button>
+            </div>
+            </ng-form>
+
+ 
+        <div class="pull-left">
+            <button type="submit" class="btn btn-primary" ng-disabled="referralForm.$invalid">Invite</button>
+        </div>
+    </form>
+
+    <div class="table  pull-left">
+        <table class="table table-striped bootgrid-table">
+            <thead>
+                <tr>
+
+                    <th>Date Created</th>
+                    <th>Used</th>
+                    <th>Token Type</th>
+                    <th>Coupon Id</th>
+                    <th>Friend's Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="referralRender" dir-paginate="ref in referral.referrals | itemsPerPage: referral.payload.itemsPerPage" total-items="referral.payload.totalItems" current-page="referral.payload.currentPage">
+                    <td>{{ref.dateCreated}}</td>
+                    <td>{{ref.used}}</td>
+                    <td>{{ref.tokenType}}</td>
+                    <td>{{ref.couponId}}</td>
+                    <td>{{ref.email}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+
+<!-- Pagination -->
+<div id="data-table-basic-footer" class="bootgrid-footer container-fluid">
+    <div class="row">
+        <div class="col-sm-6">
+            <dir-pagination-controls on-page-change="referral.pageChanged(newPageNumber)" direction-links="false" boundary-links="true"></dir-pagination-controls>
+        </div>
+        <div class="col-sm-6 infoBar">
+            <div class="infos pull-left"></div>
+        </div>
+    </div>
+</div>
