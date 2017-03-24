@@ -1,0 +1,159 @@
+﻿@{
+    ViewBag.Title = "Contact";
+}
+
+<h2>Auto populate using angular chosen</h2>
+
+<div class="container" ng-controller="formController as form">
+    <form name="form.userForm" class="form-horizontal" role="form" id="create_user_form" ng-submit="form.submitUser(form.userForm.$valid)" novalidate>
+
+        <div class="form-group" ng-class="{'has-error' : form.userForm.firstName.$error.required && !form.userForm.firstName.$pristine}">
+            <label for="userFirstName" class="col-sm-2 control-label">First Name</label>
+            <div class="col-sm-10">
+                <div class="fg-line">
+                    <input type="text" class="form-control input-sm" ng-model="form.user.firstName" id="firstName" name="firstName" placeholder="First Name" required>
+                    <p ng-show="form.userForm.firstName.$error.required && !form.userForm.firstName.$pristine" class="help-block">First Name Required.</p>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error' : form.userForm.lastName.$error.required && !form.userForm.lastName.$pristine}">
+            <label for="userLastName" class="col-sm-2 control-label">Last Name</label>
+            <div class="col-sm-10">
+                <div class="fg-line">
+                    <input type="text" class="form-control input-sm" ng-model="form.user.lastName" id="lastName" name="lastName" placeholder="Last Name" required>
+                    <p ng-show="form.userForm.lastName.$error.required && !form.userForm.lastName.$pristine" class="help-block">Last Name Required.</p>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn-success" ng-disabled="form.userForm.$invalid">Submit</button>
+    </form>
+    <h3>List of users</h3>
+    <select name="userSelect" id="userSelect" multiple chosen
+            ng-model="form.users"
+            ng-options='u.employeeId as (u.firstName + " " + u.lastName) for u in form.users'
+            style="width: 400px"
+            required>
+        <option value=""></option>
+    </select>
+</div>
+
+
+@section Scripts{
+
+    <script type="text/javascript">
+
+        //angular service
+        (function () {
+            "use strict";
+
+            angular.module(APPNAME)
+                .factory("$userService", userService);
+
+            userService.$inject = ["$http"];
+
+            function userService($http) {
+                var svc = this;
+                svc.getUsers = _getUsers;
+                svc.insertUser = _insertUser;
+                
+                console.log("angular service working");
+
+                function _getUsers(success, error) {
+                    var request = $http({
+                        method: "get"
+
+                        , url: "/api/users/get"
+                        ,param: null
+                    });
+                    return (request.then(success, error));
+                }
+                function _insertUser(data, success, error) {
+                    var request = $http({
+                        method: "post"
+
+                        , url: "/api/users/insert"
+                        , param: null
+                    });
+                    return (request.then(data, success, error));
+                }
+                return svc;
+            }
+        })();
+
+        //angular controller
+        (function () {
+            "use strict";
+            console.log("firing angular controller");
+
+            angular.module(APPNAME)
+            .controller("formController", FormController);
+
+            FormController.$inject = ["$userService"];
+
+            function FormController(
+                $userService
+               ) {
+
+                var vm = this;
+                vm.$userService = $userService;
+                vm.user = null;
+                vm.users;
+
+                vm.userForm = null;
+                vm.submitUser = _submitUser;
+                vm.onSuccess = _onSuccess;
+                vm.onGetUserSuccess = _onGetUserSuccess;
+                vm.onGetUserError = _onGetUserError;
+
+                render();
+
+                function render() {
+                    console.log("the page is rendering", vm.$userService);
+                    vm.$userService.getUsers(vm.onGetUserSuccess, vm.onGetUserError);
+                }
+                
+                function _onGetUserSuccess(data) {
+                    console.log("get users data:", data);
+                    vm.users = data.data;
+                    vm.user = vm.users.employeeId;
+                    console.log("data", vm.users);
+
+                }
+
+                function _onGetUserError() {
+                    console.log("error with getting users");
+                }
+
+                function _submitUser(isValid) {
+                    var userPayload = {
+                        "firstName": vm.user.firstName
+                        , "lastName": vm.user.lastName
+                    };
+                    console.log(userPayload, vm.userForm);
+
+                    //call the function to send the data to database:
+                    //this part is not fully hooked up at the moment
+                    vm.$userService.insertUser(data, vm.onGetUserSuccess, vm.onGetUserError);
+                    return vm.$userService.insertUser()
+                        .then(function (data) {
+                            vm.users = data;
+                            return vm.users;
+                        });
+
+                    console.log("I am showing the users");
+                }
+
+                function _onSuccess() {
+                    //on success of sending out the form, clear the form:
+                    console.log("clear form");
+                    vm.userForm.$setPristine();
+                    vm.userForm.$setUntouched();
+
+                }
+            }
+
+        })();
+
+    </script>
+
+}
