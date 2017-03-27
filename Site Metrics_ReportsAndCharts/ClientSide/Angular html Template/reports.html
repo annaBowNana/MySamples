@@ -1,0 +1,97 @@
+﻿<style>
+    .column {
+        margin: 10px;
+    }
+
+    .doughnut {
+        height: 30%;
+        width: 30%;
+    }
+
+    #bar {
+        height: 300px;
+        width: 300px;
+    }
+
+    .btn {
+        margin-top: 30px;
+    }
+</style>
+
+<!-- Adding filters to the charts -->
+<div class="card container cardBorder">
+    <div id="data-table-basic-header" class="bootgrid-header container-fluid">
+        <div>
+            <a class="pull-right btn btn-success" ng-href="/api/reports/getCsv?queryStartDate={{report.startDate}}&queryEndDate={{report.endDate}}&queryWebsiteId={{report.websiteId}}" target="_blank" download="Reports.csv">Export to Excel</a>
+        </div>
+        <h3>Pick a filter:</h3>
+        <div class="row">
+            <div class="col-md-4 actionBar">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="dateFilter" class="control-label"><strong>Date Filter:</strong></label>
+                        <select class="form-control" name="dateFilter" id="dateFilter" ng-model="report.pickDateRange" ng-options="date for date in report.dateRanges" ng-change="report.useFilter()">
+                            <option value="">Select a date range:</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div ng-style="report.customDates">
+                <div class="col-sm-4 actionBar">
+                    <label for="exampleInputEmail1"><strong>Start Date Filter:</strong></label>
+                    <p class="input-group">
+                        <input type="text" class="form-control" uib-datepicker-popup ng-model="report.startDate" is-open="report.popup1.opened" datepicker-options="report.startDateOptions" ng-required="true" close-text="Close" ng-change="report.useFilter()" popup-placement="auto bottom-right" />
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click="report.open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+                        </span>
+                    </p>
+                </div>
+                <div class="col-sm-4  actionBar">
+                    <label for="exampleInputEmail1"><strong>End Date Filter:</strong></label>
+                    <p class="input-group">
+                        <input type="text" class="form-control" uib-datepicker-popup ng-model="report.endDate" is-open="report.popup2.opened" datepicker-options="report.startDateOptions" ng-required="true" close-text="Close" ng-change="report.useFilter()" popup-placement="auto bottom-right" />
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click="report.open2()"><i class="glyphicon glyphicon-calendar"></i></button>
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 actionBar">
+                <div class="form-group">
+                    <label for="websiteFilter" class="control-label"><strong>Website Filter:</strong></label>
+                    <select class="form-control" name="websiteFilter" id="websiteFilter" ng-model="report.websiteId" ng-options="website.id as website.name for website in report.websites" ng-change="report.useFilter()">
+                        <option value="">Select a website:</option>
+                    </select>
+                    <button type="button" class="btn btn-primary waves-effect" ng-click="report.clearFilter()">Reset Filters</button>
+                </div>
+            </div>
+        </div>  
+
+    </div>
+</div>
+
+<!-- Rendering charts by implementing chart.js -->
+<div class="clearfix responsive">
+    <!-- Doughnut Chart -->
+    <div class="card col-md-3">
+        <div class="card-header">
+            <h2>Total Registered and Referrals</h2>
+        </div>
+        <div class="card-body">
+            <canvas id="doughnut" class="chart chart-doughnut"
+                    chart-data="report.data" chart-labels="report.labels"></canvas>
+        </div>
+    </div>
+    <!-- Bar Chart -->
+    <div class="card col-md-8 col-md-offset-1">
+        <div class="card-header">
+            <h2>Total Registered and Referrals</h2>
+        </div>
+        <div class="card-body">
+            <canvas id="bar" class="chart chart-bar"
+                    chart-data="report.dataBar" chart-labels="report.labelsBar" chart-series="report.seriesBar"></canvas>
+        </div>
+    </div>
+</div>
+
+
